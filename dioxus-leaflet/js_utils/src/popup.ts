@@ -1,4 +1,4 @@
-import { L, Id } from "./types";
+import type { L, Id } from "./types";
 import { get_marker } from "./marker";
 import { get_polygon } from "./polygon";
 import { setup } from "./util";
