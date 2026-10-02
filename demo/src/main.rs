@@ -26,7 +26,7 @@ fn App() -> Element {
         ]]
     });
 
-    let options = use_signal(|| MapOptions::default().with_tile_layer(TileLayer::openstreetmap()));
+    let options = use_signal(|| MapOptions::default());
 
     rsx! {
         document::Style { href: CSS }
@@ -35,18 +35,14 @@ fn App() -> Element {
             options: options(),
             on_click: move |pos: LatLng| {
                 info!("Map clicked at: {:?}", pos);
-                if let Some(marker) = markers.write().last_mut() {
-                    marker.2 = pos;
-                }
             },
             on_move: move |pos: MapPosition| {
                 info!("Map moved to: {:?}", pos);
             },
             for marker in markers() {
-                Marker {
-                    coordinate: marker.2,
+                Marker { coordinate: marker.2,
                     Popup {
-                        b { "{marker.0}"}
+                        b { "{marker.0}" }
                         br {}
                         "{marker.1}"
                     }
@@ -55,58 +51,13 @@ fn App() -> Element {
             Polyline {
                 coordinates: route,
                 options: PathOptions {
-                    color: Color::new([0., 1., 1.]),
+                    color: Color::new([0., 0., 0.]),
                     weight: 5,
+                    fill: false,
                     ..Default::default()
                 },
                 Popup { "Route connecting capitals" }
             }
-            Polygon {
-                coordinates: vec![vec![Vec::from(&jersey::JERSEY_BORDER)]],
-                options: PathOptions {
-                    color: Color::new([1., 1., 0.]),
-                    fill: true,
-                    fill_color: Color::new([1., 1., 0.]),
-                    ..Default::default()
-                },
-                Popup {
-                    b { "Jersey" }
-                    br {}
-                    "Jersey"
-                }
-            }
-        }
-        button {
-            onclick: move |_| {
-                if markers.len() > 1 {
-                    markers.remove(markers.len() - 1);
-                }
-            },
-            "Remove Marker"
-        }
-        button {
-            onclick: move |_| {
-                if let Some(last) = markers().last() {
-                    let new_lat_lng = last.2 + LatLng::new(0.5, 0.5);
-                    markers.write().push((
-                        "New City",
-                        "A new location",
-                        new_lat_lng
-                    ));
-                }
-            },
-            "Add Marker"
-        }
-        button {
-            onclick: move |_| {
-                // for mut m in markers.iter_mut() {
-                //     m.r#type = match m.r#type {
-                //         MarkerType::Pin => MarkerType::Circle(CircleMarkerOptions::default()),
-                //         MarkerType::Circle { .. } => MarkerType::Pin,
-                //     };
-                // }
-            },
-            "Switch Types"
         }
     }
 }
